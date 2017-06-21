@@ -12,6 +12,12 @@ app.set("view engine", "mustache");
 
 let todos = [];
 let complete = [];
+let info_file = "list.json";
+
+jsonFile.readFile(info_file, function (error, object) {
+  todos = object.todos;
+  complete = object.complete;
+});
 
 app.use(bodyparser.urlencoded({extended: false}));
 app.use(bodyparser.json());
@@ -28,14 +34,25 @@ app.get("/", function (req , res) {
 app.post("/", function (req, res) {
   if (req.body.todos){
   todos.push(req.body.todos);
-  res.redirect("/");}
+  }
   else {
     todos.splice(todos.indexOf(req.body.complete),1)
     complete.push(req.body.complete);
-    res.redirect("/");
-  }
 
+  }
+  let object = {
+    todos: todos,
+    complete: complete
+  };
+  jsonFile.writeFile(info_file, object, function (error) {
+    if (error){
+      console.log("error writing file: ", error);
+    }
+  })
+    res.redirect("/");
 });
+
+
 
 
 
